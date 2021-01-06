@@ -28,6 +28,7 @@ public class Lexer {
 
         this.input = input;
 
+        //filler function
         MoveState tempTransitionFunction = (state, character) -> {
             return new State(1);
         };
