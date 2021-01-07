@@ -33,4 +33,7 @@ public class State{
     public String getStateName(){
         return this.stateName;
     }
+    public String toString(){
+        return this.stateName;
+    }
 }

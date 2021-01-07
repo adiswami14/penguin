@@ -3,6 +3,8 @@ package com.AdiAyush.EZPZ.Lexer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import com.AdiAyush.EZPZ.Lexer.FSM.*;
@@ -25,17 +27,7 @@ public class Lexer {
     int currentPosition;
 
     public Lexer(File input) {
-
         this.input = input;
-
-        //filler function
-        MoveState tempTransitionFunction = (state, character) -> {
-            return new State(1);
-        };
-
-        FiniteStateMachine FSMTest = new FiniteStateMachine(new State(0, ""), new ArrayList<State>(),
-                tempTransitionFunction);
-
     }
 
     /**
@@ -83,5 +75,36 @@ public class Lexer {
         // System.out.println(inputString);
 
         return inputString;
+    }
+
+    /**
+     * Builds a finite state machine that recognizes both integers and floats.
+     * @return FiniteStateMachine - A machine that recognizes both integers and floats.
+     */
+    public static FiniteStateMachine buildNumberFSM(){
+
+        State currentState = new State("Integer");
+        List<State> acceptingStates = Arrays.asList(new State("Float"), new State("Integer"));
+        List<State> allStates = Arrays.asList(new State("Float"), new State("Integer"), new State("Invalid"));
+        MoveState transitionFunction = (state, states, character) -> {
+            switch(state.getStateName()){
+                case "Integer":
+                    if(character == 46)
+                        return states.get(0);
+                    else if(character <= 57 && character >= 48)
+                        return states.get(1);
+                    else
+                        return states.get(2);
+                case "Float":
+                    if(character == 46)
+                        return states.get(2);
+                    else if(character <= 57 && character >= 48)
+                        return states.get(1);
+                    else
+                        return states.get(2);
+            }
+            return states.get(2);
+        };
+        return new FiniteStateMachine(currentState, acceptingStates, allStates, transitionFunction);
     }
 }

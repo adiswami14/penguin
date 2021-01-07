@@ -1,6 +1,6 @@
 package com.AdiAyush.EZPZ.Lexer.FSM;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class FiniteStateMachine{
     /*
@@ -11,26 +11,30 @@ public class FiniteStateMachine{
             1234567891234 is a number within our language and fits the grammar of the language. We accept this.
     */
     State currentState;
-    ArrayList<State> acceptingStates;
+    List<State> acceptingStates;
+    List<State> allStates;
     MoveState transitionFunction;
 
-    public FiniteStateMachine(State currentState, ArrayList<State> acceptingStates, MoveState moveState){
+    public FiniteStateMachine(State currentState, List<State> acceptingStates, List<State> allStates, MoveState moveState){
         this.currentState = currentState;
         this.acceptingStates = acceptingStates;
+        this.allStates = allStates;
         this.transitionFunction = moveState;
     }
 
-    /*
-        Tests the current input (a token) and whether it fits within the grammar of the language.
-    */
-
+    /**
+     * Tests the current input (a token) and whether it fits within the grammar of the language.
+     * @param input
+     * @return
+     */
     public boolean testInput(String input){
         //Here, the current state is the "start State" of the code
         char[] chars = input.toCharArray(); //splitting into character array for faster processing of longer lines of code
-
-        State tempState =  currentState;
-        for(char ch : chars)
-            tempState = transitionFunction.moveState(currentState, ch);
+        State tempState = currentState;
+        for(char ch : chars){
+            tempState = transitionFunction.moveState(tempState, allStates, ch);
+            if(tempState.getStateName().equals("Invalid")) return false;
+        }
 
         for(State state : acceptingStates)
             if(tempState.equals(state))
