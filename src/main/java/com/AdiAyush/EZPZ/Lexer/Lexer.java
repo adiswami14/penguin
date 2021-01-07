@@ -68,7 +68,7 @@ public class Lexer {
      * @return String - The string that contains the input file.
      * @throws FileNotFoundException - Throws exception if the file is not found.
      */
-    public String parseInput(File input) throws FileNotFoundException {
+    public String parseInput() throws FileNotFoundException {
         String inputString = "";
 
         Scanner readInput = new Scanner(input);
@@ -77,10 +77,10 @@ public class Lexer {
             inputString+=readInput.nextLine();
             inputString+="\n";
         }
-
+        
         readInput.close();
 
-        System.out.println(inputString);
+        // System.out.println(inputString);
 
         return inputString;
     }
