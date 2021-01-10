@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.AdiAyush.EZPZ.Lexer.FSM.*;
+import com.AdiAyush.EZPZ.Lexer.Util.LexerUtilities;
+import com.AdiAyush.EZPZ.Lexer.Util.Pair;
 
 /**
  * Main Lexer wrapper class, all other classes in Lexer folder will feed into
@@ -25,7 +27,7 @@ public class Lexer {
 
     File input;
     String inputString;
-    int currentPosition = 0;
+    public int currentPosition = 0;
     int currentRow  = 0; //Whenever there is a \n, we must add to this
     int currentCol = currentPosition;
     int inputLength;
@@ -49,7 +51,7 @@ public class Lexer {
         
         while(readInput.hasNextLine()){
             inputString+=readInput.nextLine();
-            inputString+="\n";
+            inputString+="\\n";
         }
         
         readInput.close();
@@ -69,12 +71,14 @@ public class Lexer {
     public ArrayList<Token> tokenize() throws FileNotFoundException {
         ArrayList<Token> tokens = new ArrayList<Token>();
 
-        Token token;
+        Token token = readToken();
 
-        do{
-            token = readToken();
+        while(token.type != TokenType.END_OF_INPUT){
             tokens.add(token);
-        }while(token.type != TokenType.END_OF_INPUT); 
+            System.out.println(token.type);
+            System.out.println(token.value);
+            token = readToken();
+        }; 
 
         return tokens;
     }
@@ -85,11 +89,103 @@ public class Lexer {
      * @return Token - Returns a token based on the character at the input point.
      */
     public Token readToken(){
-        if(currentPosition > inputLength) return new Token(TokenType.END_OF_INPUT, "", currentRow, currentCol);
+        if(currentPosition >= inputLength) return new Token(TokenType.END_OF_INPUT, "", currentRow, currentCol);
         skipSpace(inputString);
-        System.out.println(currentPosition);
-        return null;
+        Character characterAtCurrentPosition = inputString.charAt(currentPosition);
+        if(LexerUtilities.isNumber(characterAtCurrentPosition))
+            return buildNumberToken();
+        if(LexerUtilities.isOperator(characterAtCurrentPosition))
+            return buildOperatorToken();
+        if(LexerUtilities.isLetter(characterAtCurrentPosition) || characterAtCurrentPosition == '_')
+            return buildStringToken();
+        return new Token(TokenType.ERROR, "Unknown Token", currentRow, currentCol++);
+        
     }   
+    
+    /**
+     * Recognizing a number character allows the creation of a number token using a Number FSM. 
+     * @return
+     */
+    public Token buildNumberToken(){
+        Pair<State, String> pair = buildNumberFSM().testInput(inputString.substring(currentPosition));
+        currentPosition += pair.b.length();
+        currentCol += pair.b.length();
+        if(pair.a.getStateName().equals("Float")){    
+            return new Token(TokenType.DECIMAL, pair.b, currentRow, currentCol);
+        }else if(pair.a.getStateName().equals("Integer")){
+            return new Token(TokenType.INTEGER, pair.b, currentRow, currentCol);
+        }else
+            return new Token(TokenType.ERROR, "Unknown Token Type", currentRow, currentCol);
+    }
+
+    /**
+     * An operator was recognized, so we determine what type of operator it is and look ahead as well.
+     * @return
+     */
+    public Token buildOperatorToken(){
+        Character currentCharacter = inputString.charAt(currentPosition);
+        System.out.println(currentCharacter);
+        currentPosition++;
+        currentCol++;
+        if(currentCharacter == ';'){
+            return new Token(TokenType.SEMICOLON, ";", currentRow, currentCol);
+        }
+        if(currentCharacter == '\\'){
+            if(currentPosition < inputLength && inputString.charAt(currentPosition) == 'n'){
+                currentPosition++;
+                currentCol++;
+                currentRow++;
+                return new Token(TokenType.NEW_LINE, "\\n", currentRow, currentCol);
+            }
+        }
+        if(currentCharacter == '='){
+            return new Token(TokenType.EQUALS, "=", currentRow, currentCol);
+        }
+        if(currentCharacter == '-'){
+            return new Token(TokenType.MINUS, "-", currentRow, currentCol);
+        }
+        if(currentCharacter == '+'){
+            return new Token(TokenType.PLUS, "+", currentRow, currentCol);
+        }
+        if(currentCharacter == '*'){
+            return new Token(TokenType.MULTIPLIER, "*", currentRow, currentCol);
+        }
+        if(currentCharacter == '/'){
+            return new Token(TokenType.DIVISOR, "/", currentRow, currentCol);
+        }
+
+        return new Token(TokenType.ERROR, "Unknown Token Type", currentRow, currentCol);
+    }
+
+    public Token buildStringToken(){
+        // System.out.println(inputString.substring(currentPosition));
+        Pair<State, String> pair = buildStringFSM().testInput(inputString.substring(currentPosition));
+        currentPosition += pair.b.length();
+        currentCol += pair.b.length();
+        return new Token(TokenType.VARIABLE, pair.b, currentRow, currentCol);
+    }
+
+    /**
+     * Builds a finite state machine that recognizes both variables.
+     * @return FiniteStateMachine - A machine that recognizes both integers and floats.
+     */
+    public static FiniteStateMachine buildStringFSM(){
+
+        State currentState = new State("String");
+        List<State> acceptingStates = Arrays.asList(new State("String"));
+        List<State> allStates = Arrays.asList(new State("String"), new State("Invalid"));
+        MoveState transitionFunction = (state, states, character) -> {
+            switch(state.getStateName()){
+                case "String":
+                    if(LexerUtilities.isLetter(character) || character == '_')
+                        return states.get(0);
+                    else
+                        return states.get(1);
+            }
+            return states.get(1);
+        };
+        return new FiniteStateMachine(currentState, acceptingStates, allStates, transitionFunction);
+    }
 
     /**
      * Builds a finite state machine that recognizes both integers and floats.
@@ -113,7 +209,7 @@ public class Lexer {
                     if(character == 46) // If there is a decimal
                         return states.get(2);
                     else if(character <= 57 && character >= 48) // If the character is 0-9
-                        return states.get(1);
+                        return states.get(0);
                     else //If the character is not a decimal nor 0-9
                         return states.get(2);
             }

@@ -19,4 +19,7 @@ public class Token{
         this.lineNumber = lineNumber;
         this.col = col;
     }
+    public String toString(){
+        return "{"+this.type+", "+this.value+"}";
+    }
 }

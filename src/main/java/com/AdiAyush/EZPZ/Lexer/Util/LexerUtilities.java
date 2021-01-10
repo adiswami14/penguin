@@ -1,8 +1,8 @@
-package com.AdiAyush.EZPZ.Lexer;
+package com.AdiAyush.EZPZ.Lexer.Util;
 
 public class LexerUtilities {
     public static boolean isOperator(Character ch) {
-        return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '=' || ch == '>' || ch == '<' || ch == '!' || ch == '&' || ch == '|' || ch == '%' || ch == '~' || ch == '$' || ch == '~' || ch == '^';
+        return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '=' || ch == '>' || ch == '<' || ch == '!' || ch == '&' || ch == '|' || ch == '%' || ch == '~' || ch == '$' || ch == '~' || ch == '^'|| ch == ';' || ch == '\\';
     }
     public static boolean isNumber(Character ch) {
         return ch <= 57 && ch >= 48;

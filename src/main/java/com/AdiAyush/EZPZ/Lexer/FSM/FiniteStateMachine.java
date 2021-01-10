@@ -2,6 +2,8 @@ package com.AdiAyush.EZPZ.Lexer.FSM;
 
 import java.util.List;
 
+import com.AdiAyush.EZPZ.Lexer.Util.Pair;
+
 public class FiniteStateMachine{
     /*
         We use Finite State Machines to help dictate whether or not
@@ -27,19 +29,22 @@ public class FiniteStateMachine{
      * @param input
      * @return
      */
-    public boolean testInput(String input){
+    public Pair<State, String> testInput(String input){
         //Here, the current state is the "start State" of the code
         char[] chars = input.toCharArray(); //splitting into character array for faster processing of longer lines of code
+        StringBuilder output = new StringBuilder();
         State tempState = currentState;
         for(char ch : chars){
-            tempState = transitionFunction.moveState(tempState, allStates, ch);
-            if(tempState.getStateName().equals("Invalid")) return false;
+            State functionState = transitionFunction.moveState(tempState, allStates, ch);
+            tempState = !functionState.stateName.equals("Invalid") ? functionState : tempState; // If the state from the transition function is invalid, we keep the original state.
+            if(functionState.getStateName().equals("Invalid")) break; // If the state from the transition function is invalid, we break from the for loop.
+            else output.append(ch); //Otherwise, if the state was valid, we append the character tested to the output.
         }
 
         for(State state : acceptingStates)
             if(tempState.equals(state))
-                return true;
-        return false;
+                return new Pair<State, String>(tempState, output.toString());
+        return null;
         
     }
 }

@@ -33,6 +33,10 @@ public enum TokenType {
 
     // Identifiers
         END_OF_INPUT,
+        ERROR,
+        SEMICOLON,
+        NEW_LINE,
+        VARIABLE,
 
     // Numbers
         ZERO,
