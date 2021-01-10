@@ -157,8 +157,11 @@ public class Lexer {
         return new Token(TokenType.ERROR, "Unknown Token Type", currentRow, currentCol);
     }
 
+    /**
+     * Builds a string token based on the character at the current position.
+     * @return Token - Returns a string / variable (for the time being) token.
+     */
     public Token buildStringToken(){
-        // System.out.println(inputString.substring(currentPosition));
         Pair<State, String> pair = buildStringFSM().testInput(inputString.substring(currentPosition));
         currentPosition += pair.b.length();
         currentCol += pair.b.length();
