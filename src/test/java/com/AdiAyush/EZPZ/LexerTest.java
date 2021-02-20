@@ -21,16 +21,7 @@ public class LexerTest{
     public void BasicStateTest() throws FileNotFoundException {
         Lexer testLexer = new Lexer(new File("src/test/java/com/AdiAyush/EZPZ/testCode/test.txt"));
         String testInput = testLexer.parseInput();
-        assertEquals("x = 1 + 3;\ny = x + 5;\n", testInput);
-    }
-
-    @Test
-    public void ReadTokenTest() throws FileNotFoundException {
-        Lexer testLexer = new Lexer(new File("src/test/java/com/AdiAyush/EZPZ/testCode/test.txt"));
-        testLexer.readToken();
-        boolean equalZero = testLexer.currentPosition == 0;
-        assertEquals(true, equalZero);
-
+        assertEquals("x = 1 + 3;\\ny = x + 5;\\n", testInput);
     }
 
     @Test
@@ -49,7 +40,6 @@ public class LexerTest{
     @Test
     public void LexerTokenTest() throws FileNotFoundException {
         Lexer testLexer = new Lexer(new File("src/test/java/com/AdiAyush/EZPZ/testCode/test.txt"));
-        System.out.println("hello");
         ArrayList<Token> list = testLexer.tokenize();
         System.out.println(list);
     }
