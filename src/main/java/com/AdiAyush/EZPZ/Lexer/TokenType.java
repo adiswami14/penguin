@@ -16,6 +16,7 @@ public enum TokenType {
         MINUS,
         DIVISOR,
         MULTIPLIER,
+        MATRIX_MULT,
 
     //Keywords (add more as language progresses)
         INTEGER,
@@ -27,7 +28,7 @@ public enum TokenType {
         VOID,
         CONSTANT,
         STATIC,
-        LIST,
+        VECTOR,
         FUNCTION,
         RETURN,
 
@@ -48,6 +49,5 @@ public enum TokenType {
         SIX,
         SEVEN,
         EIGHT,
-        NINE,
-        TEN;
+        NINE;
 }
